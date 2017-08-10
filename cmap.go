@@ -3,30 +3,30 @@ package cmap
 import "hash/fnv"
 import "sync"
 
-// CMap is concurrent sharded map[string]string with Get/Set methods
-type CMap struct {
+// Map is concurrent sharded map[string]string with Get/Set methods
+type Map struct {
 	shards []*Shard
 }
 
-func New(nShards int) CMap {
+func New(nShards int) Map {
 	shards := make([]*Shard, nShards)
 	for i := 0; i < nShards; i++ {
 		shards[i] = NewShard()
 	}
-	return CMap{shards: shards}
+	return Map{shards: shards}
 }
 
-func (c CMap) hash(s string) uint32 {
+func (c Map) hash(s string) uint32 {
 	h := fnv.New32a()
 	h.Write([]byte(s))
 	return h.Sum32() % uint32(len(c.shards))
 }
 
-func (c CMap) Get(key string) string {
+func (c Map) Get(key string) string {
 	return c.shards[c.hash(key)].Get(key)
 }
 
-func (c CMap) Set(key, value string) {
+func (c Map) Set(key, value string) {
 	c.shards[c.hash(key)].Set(key, value)
 }
 
