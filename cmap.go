@@ -8,6 +8,14 @@ type CMap struct {
 	shards []*Shard
 }
 
+func New(nShards int) CMap {
+	shards := make([]*Shard, nShards)
+	for i := 0; i < nShards; i++ {
+		shards[i] = NewShard()
+	}
+	return CMap{shards: shards}
+}
+
 func (c CMap) hash(s string) uint32 {
 	h := fnv.New32a()
 	h.Write([]byte(s))
@@ -26,6 +34,12 @@ func (c CMap) Set(key, value string) {
 type Shard struct {
 	mu   sync.RWMutex
 	data map[string]string
+}
+
+func NewShard() *Shard {
+	return &Shard{
+		data: make(map[string]string),
+	}
 }
 
 func (c *Shard) Get(key string) string {
