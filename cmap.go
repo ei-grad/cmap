@@ -22,7 +22,10 @@ func New(nShards int) *Map {
 
 func (c Map) hash(s string) uint32 {
 	h := fnv.New32a()
-	h.Write([]byte(s))
+	_, err := h.Write([]byte(s))
+	if err != nil {
+		panic(err)
+	}
 	return h.Sum32() % uint32(len(c.shards))
 }
 

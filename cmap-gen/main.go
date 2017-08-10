@@ -22,7 +22,7 @@ var (
 	packageName   = flag.String("package", "", "package name (required)")
 )
 
-type TemplateParams struct {
+type templateParams struct {
 	TypeName      string
 	MapTypeName   string
 	ShardTypeName string
@@ -56,34 +56,14 @@ func main() {
 		dir = filepath.Dir(args[0])
 	}
 
+	params := getParams()
+
 	var buf bytes.Buffer
-	var params TemplateParams
 
-	params.TypeName = *typeName
-	params.Package = *packageName
-	params.Cmdline = strings.Join(os.Args, " ")
-
-	if *mapTypeName == "" {
-		params.MapTypeName = *typeName + "Map"
-	} else {
-		params.MapTypeName = *mapTypeName
+	err := tmpl.Execute(&buf, params)
+	if err != nil {
+		log.Fatalf("rendering template: %s", err)
 	}
-
-	if *shardTypeName == "" {
-		params.ShardTypeName = *typeName + "Shard"
-	} else {
-		params.ShardTypeName = *shardTypeName
-	}
-
-	params.KeyTypeName = *keyTypeName
-
-	if *newMethodName == "" {
-		params.NewMethodName = "New" + *typeName + "Map"
-	} else {
-		params.NewMethodName = *newMethodName
-	}
-
-	tmpl.Execute(&buf, params)
 
 	// Format the output.
 	src, err := format.Source(buf.Bytes())
@@ -111,4 +91,34 @@ func isDirectory(name string) bool {
 		log.Fatal(err)
 	}
 	return info.IsDir()
+}
+
+func getParams() (params templateParams) {
+
+	params.TypeName = *typeName
+	params.Package = *packageName
+	params.Cmdline = strings.Join(os.Args, " ")
+
+	if *mapTypeName == "" {
+		params.MapTypeName = *typeName + "Map"
+	} else {
+		params.MapTypeName = *mapTypeName
+	}
+
+	if *shardTypeName == "" {
+		params.ShardTypeName = *typeName + "Shard"
+	} else {
+		params.ShardTypeName = *shardTypeName
+	}
+
+	params.KeyTypeName = *keyTypeName
+
+	if *newMethodName == "" {
+		params.NewMethodName = "New" + *typeName + "Map"
+	} else {
+		params.NewMethodName = *newMethodName
+	}
+
+	return
+
 }
