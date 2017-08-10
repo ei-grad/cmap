@@ -3,7 +3,7 @@ package cmap
 import "hash/fnv"
 import "sync"
 
-// Map is concurrent sharded map[string]string with Get/Set methods
+// Map is sharded concurrent map[string]string with Get/Set methods
 type Map struct {
 	shards []*Shard
 }
